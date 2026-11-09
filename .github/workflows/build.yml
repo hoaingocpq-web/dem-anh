@@ -1,0 +1,66 @@
+name: Build APK và xuất bản trang link
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: build
+  cancel-in-progress: true
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Build APK
+        run: gradle assembleDebug --no-daemon
+
+      - name: Đổi tên APK
+        run: cp app/build/outputs/apk/debug/app-debug.apk DemAnh.apk
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: DemAnh-apk
+          path: DemAnh.apk
+
+      # Đăng APK lên mục Releases để có link tải cố định
+      - name: Phát hành APK
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: latest
+          name: Đếm Ảnh (bản mới nhất)
+          body: Cài đặt Đếm Ảnh cho Android. Tải DemAnh.apk bên dưới.
+          files: DemAnh.apk
+          make_latest: true
+
+  pages:
+    needs: apk
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs
+      - id: deploy
+        uses: actions/deploy-pages@v4

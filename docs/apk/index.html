@@ -1,0 +1,9 @@
+<!doctype html>
+<html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tải Đếm Ảnh cho Android</title></head>
+<body style="font-family:system-ui;padding:24px"><p>Đang tải Đếm Ảnh… <a id="a" href="#">Bấm vào đây nếu không tự tải</a>.</p>
+<script>
+var u = location.hostname.split('.')[0], r = location.pathname.split('/')[1] || '';
+var link = 'https://github.com/' + u + '/' + r + '/releases/download/latest/DemAnh.apk';
+document.getElementById('a').href = link; location.replace(link);
+</script></body></html>
